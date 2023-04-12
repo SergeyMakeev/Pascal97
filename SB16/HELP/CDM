@@ -1,0 +1,135 @@
+*****************************************************************************
+                                    CDM
+*****************************************************************************
+     Part I. File format.
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+        ³     File header     ³
+        ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        ³ Samples description ³
+        ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        ³   Patterns order    ³
+        ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        ³      Patterns       ³
+        ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        ³      Samples        ³
+        ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+     a) File header
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Offset³Length³                         Description                          ³
+ÃÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³   0  ³  20  ³ ASCIZ module name. The same as in .STM and .MOD              ³
+³  20  ³   8  ³ Editor name                                                  ³
+³  28  ³   1  ³ Sign <EOF> - 1Ah                                             ³
+³  29  ³   1  ³ File type - "3"                                              ³
+³  30  ³   1  ³ Song temp                                                    ³
+³  31  ³   1  ³ Global song volume                                           ³
+³  32  ³   1  ³ Compression method - "0" in described version                ³
+³  33  ³   1  ³ Number of stored patterns                                    ³
+³  34  ³   1  ³ Number of stored samples                                     ³
+³  35  ³   1  ³ Voice repartition info (VRI)*                                ³
+³  36  ³   1  ³ Reserved (will be used for 8-voice modules as VRI for ch 5-8)³
+³  37  ³   2  ³ Unused                                                       ³
+³  39  ³   2  ³ Size of additional information (while 0, but can be used     ³
+³      ³      ³ for future versions)                                         ³
+ÃÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ Total size of header : 41+(AddInfoSize) bytes.                             ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+*Voice repartition info byte format:
+ ÚÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄ¿
+ ³ 7   6 ³ 5   4 ³ 3   2 ³ 1   0 ³
+ ÀÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÙ
+   Chan1   Chan2   Chan3   Chan4
+
+ Default it is 00 01 10 11b or $1B
+
+ It define how to direct physical channels to logycal
+ (For posibility to exchange channels on stereo output)
+
+ In the same way I'm used the first byte from RESERVED area of .STM's header.
+
+     b) Samples description.
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Offset³Length³                         Description                          ³
+ÃÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³   0  ³  12  ³ ASCIZ sample name (up to 12 bytes).                          ³
+³  12  ³   4  ³ Unused (Can be used as some flags for compression methods)   ³
+³  16  ³   1  ³ Sample number (0-30)                                         ³
+³  17  ³   2  ³ Uncompressed sample length (in bytes)                        ³
+³  19  ³   2  ³ Loop start offset (also in bytes)                            ³
+³  21  ³   2  ³ Loop end offset                                              ³
+³  23  ³   1  ³ Default volume of sample                                     ³
+³  24  ³   2  ³ Speed for middle C                                           ³
+³  26  ³   2  ³ Compressed sample length                                     ³
+³  28  ³   4  ³ Offset of sample in file (DWord)                             ³
+ÃÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ Total size of block : 32 bytes.                                            ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+     c) Order storing.
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+     Orders are stored in format of Pascal strings (one byte-length, followed
+by so many bytes, how much is indicated).
+
+     d) Patterns.
+     ÄÄÄÄÄÄÄÄÄÄÄÄ
+     Patterns are stored in packed format. Actually it is used an simple
+Lempel-Ziv/Huffman method analogous to that is used in LHA. First, LZ
+dictionary and Huffman tree is initialized. After this, when passing to
+other pattern, dictionary and Huffman tree are not cleared. This algorythm
+is described detailed in part II. Patterns are stored in ScreamTracker's
+format with compression.
+     Patterns format:
+
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ 4bytes ³ 4bytes ³ 4bytes ³ 4bytes ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Ä¿
+³ Voice1 ³ Voice2 ³ Voice3 ³ Voice4 ³  ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´  ³  64 columns
+³ Voice1 ³ Voice2 ³ Voice3 ³ Voice4 ³  ÃÄ of notes (64*4*4=1K)
+  . . . . . . . . . . . . . . . . .    ³
+³ Voice1 ³ Voice2 ³ Voice3 ³ Voice4 ³  ³
+ÀÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ ÄÙ
+
+ Each 4 bytes have folowed structure:
+
+        +0                +1                +2                +3
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ 7 6 5 4 3 2 1 0 ³ 7 6 5 4 3 2 1 0 ³ 7 6 5 4 3 2 1 0 ³ 7 6 5 4 3 2 1 0 ³
+ÀÄÂÄÄÄÄÄÂÄÂÄÄÄÄÄÂÄÁÄÂÄÄÄÄÄÄÄÂÄÂÄÄÄÄÄÁÄÄÄÄÄÄÄÂÄÂÄÄÄÄÄÂÄÁÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÙ
+  ÀÄÄÂÄÄÙ ÀÄÄÂÄÄÙ   ÀÄÄÄÂÄÄÄÙ ÀÄÄÄÄÄÄÂÄÄÄÄÄÄÙ ÀÄÄÂÄÄÙ   ÀÄÄÄÄÄÄÂÄÄÄÄÄÄÙ
+   Octave   Note    SampleNo   Volume(0-65)   Command     Command info
+
+     e) Samples.
+     ÄÄÄÄÄÄÄÄÄÄÄ
+     Instruments are stored in the same way as patterns. After patterns
+all compression attributes (LZ dictionary & Huffman tree) are initialized.
+It gives some winnings in code size, because statistics of samples have
+completely other structure. When passing from one sample to other, dictionary
+and Huffman tree are not cleared.
+
+
+     Part II. Algorythm description.
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+     In a few words compression algorythm can be descrybed as a mixed
+classic Lempel-Ziv algorythm with dynamic Huffman. Huffman tree have
+more than 256 chars. It is need for repeated sequence encoding of more
+than 3 and less than 253+60 bytes (Maximal matching strings length can be
+specifyied through changing constant MaxMatchLen). Repeated sequence
+of a 3 and more bytes are encoded by a char with code=253+MatchLength,
+folowed by offset backward to matching string. If matching length is
+more or equal than NumSymbols (i.e. number of symbols reserved for
+length encoding), to output stream is placed symbol with code (253+
+NumSymbols), folowed by 8-bit length (therefore MaxMatchLength=255+
+NumSymbols). Lempel-Ziv dictionary size is 4K (so, offsets backward
+is encoded into 12 bits). Offsets is stored without any changes. Some
+archivers, for example LHA, use some kind of static Huffman encoding
+for offset storing. I think it isn't neccesary to encode it in this
+way because profits is minimal.
+     In any case it may be implemented in future versions because file
+structure is very flexible. It can be included as a <Compression method 1>
+and above.
+

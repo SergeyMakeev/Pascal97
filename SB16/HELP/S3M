@@ -1,0 +1,344 @@
+******************************************************************************
+                                  S3M
+******************************************************************************
+
+                        Scream Tracker 3.0 file formats
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                                Song/Module header
+          0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+        здддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбддд©
+  0000: Ё Song name, max 28 chars (incl. NUL)                           Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0010: Ё                                               Ё1AhЁTypЁ x Ё x Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0020: ЁOrdNum ЁInsNum ЁPatNum Ё Flags Ё Cwt/v Ё  Ffv  Ё'S'Ё'C'Ё'R'Ё'M'Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0030: Ёm.vЁi.sЁi.tЁm.mЁ x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0040: ЁChannel settings for 32 channels, 255=unused,+128=disabled     Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0050: Ё                                                               Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0060: ЁOrders; length=OrdNum (must be even)                           Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  xxxx: ЁParapointers to instruments; length=InsNum*2                   Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  xxxx: ЁParapointers to patterns; length=PatNum*2                      Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+
+
+        Typ     = File type: 16=module,17=song
+        Ordnum  = Number of orders in file
+        Insnum  = Number of instruments in file
+        Patnum  = Number of patterns in file
+        Cwt/v   = Created with tracker / version: &0xfff=version,
+>>12=tracker
+                        ST30:0x1300
+        Ffv     = File format version;
+                        1=original
+                        2=original BUT samples unsigned
+        Parapointers are OFFSET/16 relative to the beginning of the header.
+
+        PLAYING AFFECTORS / INITIALIZERS:
+        Flags   =  +1:st2vibrato
+                   +2:st2tempo
+                   +4:amigaslides
+                   +8:0vol optimizations
+                   +16:amiga limits
+                   +32:enable filter/sfx
+        m.v     = master volume
+        m.m     = master multiplier (&15) + stereo(=+16)
+        i.s     = initial speed (command A)
+        i.t     = initial tempo (command T)
+
+        Channel types:
+        &128=on, &127=type: (127=unused)
+        8  - L-Adlib-Melody 1 (A1)      0  - L-Sample 1 (S1)
+        9  - L-Adlib-Melody 2 (A2)      1  - L-Sample 2 (S2)
+        10 - L-Adlib-Melody 3 (A3)      2  - L-Sample 3 (S3)
+        11 - L-Adlib-Melody 4 (A4)      3  - L-Sample 4 (S4)
+        12 - L-Adlib-Melody 5 (A5)      4  - R-Sample 5 (S5)
+        13 - L-Adlib-Melody 6 (A6)      5  - R-Sample 6 (S6)
+        14 - L-Adlib-Melody 7 (A7)      6  - R-Sample 7 (S7)
+        15 - L-Adlib-Melody 8 (A8)      7  - R-Sample 8 (S8)
+        16 - L-Adlib-Melody 9 (A9)
+                                        26 - L-Adlib-Bassdrum (AB)
+        17 - R-Adlib-Melody 1 (B1)      27 - L-Adlib-Snare    (AS)
+        18 - R-Adlib-Melody 2 (B2)      28 - L-Adlib-Tom      (AT)
+        19 - R-Adlib-Melody 3 (B3)      29 - L-Adlib-Cymbal   (AC)
+        20 - R-Adlib-Melody 4 (B4)      30 - L-Adlib-Hihat    (AH)
+        21 - R-Adlib-Melody 5 (B5)      31 - R-Adlib-Bassdrum (BB)
+        22 - R-Adlib-Melody 6 (B6)      32 - R-Adlib-Snare    (BS)
+        23 - R-Adlib-Melody 7 (B7)      33 - R-Adlib-Tom      (BT)
+        24 - R-Adlib-Melody 8 (B8)      34 - R-Adlib-Cymbal   (BC)
+        25 - R-Adlib-Melody 9 (B9)      35 - R-Adlib-Hihat    (BH)
+
+
+                        Digiplayer/ST3.0 samplefileformat
+          0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+        здддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбддд©
+  0000: Ё[T]Ё Dos filename (12345678.ABC)                   Ё    MemSeg Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0010: ЁLength ЁHI:lengЁLoopBegЁHI:LBegЁLoopEndЁHI:LendЁVolЁDskЁ[P]Ё[F]Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0020: ЁC2Spd  ЁHI:C2spЁ x Ё x Ё x Ё x ЁGVSPOS ЁInt:512ЁInt:lastused   Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0030: Ё Sample name, 28 characters max... (incl. NUL)                 Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0040: Ё ...sample name...                             Ё'S'Ё'C'Ё'R'Ё'S'Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  xxxx: sampledata
+        NOTES:
+        Inside module, MemSeg tells the paragraph position of
+        the actual sampledata (offset/16). In separate insfile the same,
+        in memory segment of data relative to beginning of module.
+        GVSPOS=Position in gravis memory /32 (used inside player only)
+        [T]ype, 1=Sample
+        [F]lags, +1=loop on
+                 +2=stereo (after Length bytes for LEFT channel,
+                          another Length bytes for RIGHT channel)
+                 +4=16-bit samples (intel LO-HI byteorder)
+        { [P]ack, 0=8 bit normal (1=DP30ADPCM1 for holland project) }
+
+                        ST3.0 adlib instrument format
+          0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+        здддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбдддбддд©
+  0000: Ё[T]Ё Dos filename (12345678.123)                   Ё00hЁ00hЁ00hЁ
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0010: ЁD00ЁD01ЁD02ЁD03ЁD04ЁD05ЁD06ЁD07ЁD08ЁD09ЁD0AЁD0BЁVolЁDskЁ x Ё x Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0020: ЁC2Spd  ЁHI:C2spЁ x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё x Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0030: Ё Sample name, 28 characters max... (incl. NUL)                 Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+  0040: Ё ...sample name...                             Ё'S'Ё'C'Ё'R'Ё'I'Ё
+        цдддедддедддедддедддедддедддедддедддедддедддедддедддедддедддеддд╢
+        NOTES:
+        [T]ype, 2..7=amel,abd,asnare,atom,acym,ahihat
+        modulator:                                              carrier:
+        D00=[freq.muliplier]+[?scale env.]*16+[?sustain]*32+
+                [?pitch vib]*64+[?vol.vib]*128                  =D01
+        D02=[63-volume]+[levelscale&1]*128+[l.s.&2]*64          =D03
+        D04=[Attack]*16+[decay]                                 =D05
+        D06=[15-sustain]*16+[release]                           =D07
+        D08=[wave select]                                       =D09
+        D0A=[modulation feedback]*2+[?additive synthesis]
+        D0B=unused
+
+
+Unpacked Internal memoryformat for patterns:
+
+REMARK: each channel takes 320 bytes, rows for each channel
+are sequential.
+byte:
+0 - Note; hi=oct, lo=note, 255=empty note,254=key off (used with adlib)
+1 - Instrument ;255=..
+2 - Volume ;255=..
+3 - Special command ;255=..
+4 - Command info
+
+
+Packed Internal memoryformat for patterns:
+
+Pattern length fixed for 64 rows.
+
+BYTE:flag, 0=end of row
+        &31=channel
+        &32=follows;  BYTE:note, BYTE:instrument
+        &64=follows;  BYTE:volume
+        &128=follows; BYTE:command, BYTE:info
+
+************************************************
+NOTES on [memseg].
+In memory, the memseg's highest byte (3) is always zero
+(thus also the ASCIIZ terminator). For the actual 16 bit
+memseg the following storage method is used:
+0..EFFF = Segment to memory
+F000... = EMS page ####-F000
+
+
+
+EFFECTS:
+ST2.0 vs. ST3.0 vs. ProTracker commands.
+
+S3:S2  Protracker Effect Commands:
+
+-----------------------------------------------------------------------------
+J   J 0 - Normal play or Arpeggio        0xy : x-first halfnote add,
+y-second
+F   F 1 - Slide Up (in ST, xx<0xf0)      1xx : upspeed
+E   E 2 - Slide Down (in ST, xx<0xf0)    2xx : downspeed
+G   G 3 - Tone Portamento                3xx : up/down speed
+H   H 4 - Vibrato                        4xy : x-speed,   y-depth
+O   O 5 - Tone Port. + Volume Slide      5xy : x-upspeed, y-downspeed
+K   K 6 - Vibrato + Volume Slide         6xy : x-upspeed, y-downspeed
+R  %M 7 - Tremolo (vol vibr)             7xy : x-speed,   y-depth
+X  %. 8 - NOT USED
+P  %N 9 - Set SampleOffset               9xx : offset (23 -> 2300)
+D   D A - VolumeSlide                    Axy : x-upspeed, y-downspeed
+B   B B - Position Jump                  Bxx : songposition
+*   * C - Set Volume                     Cxx : volume, 00-40
+C   C D - Pattern Break                  Dxx : break position in next patt
+*   * E - E-Commands                     Exy : see below...
+A   A F - Set Speed                      Fxx : speed (default 6)
+
+-----------------------------------------------------------------------------
+S0.%L E0- Set Filter                     E0x : 0-filter on, 1-filter off
+FF.%L E1- FineSlide Up                   E1x : value
+EF.%L E2- FineSlide Down                 E2x : value
+S1.%L E3- Glissando Control              E3x : 0-off, 1-on (use with tonep.)
+S3.%L E4- Set Vibrato Waveform           E4x : 0-sine, 1-ramp down, 2-square
+S2.%L E5- Set Finetune                   E5x : x-finetune value
+SB %L E6- Loop/Set loop (x=0)            E6x : jump to loop, play x times
+S4.%L E7- Set Tremolo Waveform           E7x : 0-sine, 1-ramp down. 2-square
+S8 %L E8- NOT USED
+Q .%L E9- Retrig Note                    E9x : retrig from note + x vblanks
+(STD^.%L EA- Fine VolumeSlide Up            EAx : add x to volume
+D^.%L EB- Fine VolumeSlide Down          EBx : subtract x from volume
+SC.%L EC- NoteCut                        ECx : cut from note + x vblanks
+SD.%L ED- NoteDelay                      EDx : delay note x vblanks
+SE.%L EE- PatternDelay                   EEx : delay pattern x notes
+SF.%L EF- FunkRepeat                     EFx : speed (add replen to repeat)
+
+-----------------------------------------------------------------------------
+I   I --- Tremor                         Ixy : x-ontime,y-offtime
+S5 %% --- Vibrato divider                S5x : 0-soundtrack,1-noise2/pro
+S6 %% --- Channel amount                 S6x : 4-4 channels, 8-8 channels
+T     --- Set tempo                      Lxx : see notes
+SA    --- stereo
+
+Notes:
+V^ in volumeslide: V0x=x down, Vx0=x up
+
+Q has special echo features.
+
+Tempo T:
+tempo is a word parameter; bits 7..12 part set: T0..31
+                           bits 0..7 part set: T0..7F
+practically: (initial tempo is 120=78h)
+T02     tempo is now 78h+100h=178h
+T10     tempo is now 100h+10h=110h
+note that T01+T12 is same as T92
+
+TODO:
+in commmands E and F values 0..0xEF work as in amiga,
+Fx means: fine slide
+
+==========================================================================
+SCREAM TRACKER 2.0
+   used: A B C D E F G H I J K M N O P
+ unused: none
+Notes:
+ Commands marked with % are converted, but not implemented
+==========================================================================
+SCREAM TRACKER 3.0
+   used: A B C D E F G H I J K M N O P S T V X Z
+ unused: R W U Q Y
+ S-used: S1 S2 S3 S4 S5 S6 S8 S9 SB SC SD SE SF
+ S-unus: S7
+Notes:
+ Speed for command A must be multiplied by 16, etc: F6 -> A60
+ If speed is 0x10..0x1f then use use the speed-0x10 as the
+ speed for command A: A15 => A05
+==========================================================================
+
+ST3.0 playing initializers:             ST3.0 special flags:
+init tempo                              st2vibrato
+                                        st2tempo
+ST3.0 playing affecters:
+master volume
+
+
+================================================================
+OKTALYZER
+
+0A (A##) T{rin{ ##=m{{r{
+0B (B##) -"-
+0C
+0D (D##) Slide down
+0E
+0F (F##) Filter
+10
+11 (H##) Transpose up (instant)
+12
+13
+14
+15 (L##) Transpose down (instant)
+1C (S##) Speed
+1E (U##) Slide up
+1F (V##) Volume
+
+
+PBOD####0040
+        ^rows
+
+
+-------------------------------------------------------------------------------
+"Temporary help system; PATTERN EFFECTS (F10 for edit keys)\n"
+"\n"
+"Axx Set speed to xx (default 06)\n"
+"Bxx Jump to order xx\n"
+"Cxx Break pattern to row xx\n"
+"D0y.Volume slide down by y\n"
+"Dx0.Volume slide up by x\n"
+"DFy.Fine volume slide down by y(!=0,F)\n"
+"DxF.Fine volume slide up by x(!=0,F)\n"
+"Exx.Slide down by xx (range 00..DF)\n"
+"EFx.Fine slide down by x\n"
+"EEx.Extra fine slide down by x\n"
+"Fxx.Slide up by xx (range 00..DF)\n"
+"FFx.Fine slide up by x\n"
+"FEx.Extra fine slide up by x\n"
+"Gxx.Tone portamento, speed xx\n"
+"Hxy.Vibrato, speed x and depth y\n"
+"Ixy Tremor with ontime x and offtime y\n"
+"Jxy.Arpeggio; adds halfnotes: x,y,0\n"
+"Kxy.Dual command: H00 & Dxy\n"
+"Lxy.Dual command: G00 & Dxy\n"
+"Mxx --\n"
+"Nxx --\n"
+"Oxx Set SampleOffset=xx00h\n"
+"Pxx --\n"
+"Qxy.Retrig note (see right)\n"
+"Rxy.Tremolo with speed x and depth y\n"
+"Sxy Special commands (see top-right)\n"
+"Txx Tempo=xx (range 20..FF, def:78h)\n"
+"Uxx --\n"
+"Vxx Set global volume (0..40)\n"
+"Wxx --\n"
+"Xxx .unused amiga command 8xx/\n"
+"Zxx --\n"
+"S0x Set filter (1/0=on/off,F=force)\n"
+"S1x Set glissando control x=0/1\n"
+"S2x Set finetune (=c2spd)\n"
+"S3x Set vibrato waveform to x\n"
+"S4x Set tremolo waveform to x\n"
+"S5x --\n"
+"S6x --\n"
+"S7x --\n"
+"S8x .unused amiga command E8x/\n"
+"S9x --\n"
+"SAx Stereo control (see below)\n"
+"SBx Loop (x=cnt)/SetLoop (x=0)\n"
+"SCx NoteCut in x frames\n"
+"SDx NoteDelay for x frames\n"
+"SEx PatternDelay for x notes\n"
+"SFx .FunkRepeat, x=speed/\n"
+"\n"
+"Vibrato waves: +4:don't.res.\n"
+"    0:sine, 1:ramp down \n"
+"    2:square, 3:random  \n"
+"\n"
+"Qxy Retrig note (cont.)\n"
+"    y=frames between retrigs\n"
+"    x=volume change per retrig:\n"
+"      0:0    4:-8   8:XXX C:8 \n"
+"      1:-1   5:-16  9:1   D:16\n"
+"      2:-2   6:*2/3 A:2   E:*3/2\n"
+"      3:-4   7:*1/2 B:4   F:*2\n"
+"\n"
+"SAx Stereo control (cont.)\n"
+"      0:1-0  1:0-1  2:2-0  3:0-2\n"
+"      4:2-1  5:1-2  6:1-1  7:2-2\n"
+

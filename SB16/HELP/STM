@@ -1,0 +1,139 @@
+******************************************************************************
+                             STM modules
+******************************************************************************
+
+
+        It's a ordinary .STM file, which format is described by Sami
+        Tammilehto in his documentation about ScreamTracker, but I
+        enlarge it a bit. General format:
+      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+      ³     File header     ³
+      ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+      ³ Samples description ³
+      ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+      ³   Patterns order    ³
+      ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+      ³      Patterns       ³
+      ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+      ³      Samples        ³
+      ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+      ³      (Optional)     ³
+      ³   Additional info.  ³
+      ³  "Composed by" and  ³
+      ³"Arranged by" strings³
+      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+     a) File header
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Offset³Length³                         Description                          ³
+ÃÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³   0  ³  20  ³ ASCIZ module name. The same as in .CDM and .MOD              ³
+³  20  ³   8  ³ Editor name                                                  ³
+³  28  ³   1  ³ Sign <EOF> - 1Ah                                             ³
+³  29  ³   1  ³ File type - 1=song; 2=module                                 ³
+³  30  ³   1  ³ Hi byte of version number                                    ³
+³  31  ³   1  ³ Low byte of version number                                   ³
+³  32  ³   1  ³ Song temp                                                    ³
+³  33  ³   1  ³ Number of stored patterns                                    ³
+³  34  ³   1  ³ Global volume (0-64)                                         ³
+³  35  ³   1  ³ VRI* (Voice repartition info) byte if <>'X'                  ³
+³  36  ³   2  ³ Additional song info** if <>'XX'                             ³
+³  38  ³  10  ³ Reserved, 10 bytes ('XXXXXXXXXXXXX')                         ³
+ÃÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ Total size of header : 48 bytes.                                           ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+*Voice repartition info byte format:
+ ÚÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄ¿
+ ³ 7   6 ³ 5   4 ³ 3   2 ³ 1   0 ³
+ ÀÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÙ
+   Chan1   Chan2   Chan3   Chan4
+
+ Default it is 00 01 10 11 (binary) or 1B(hex)
+
+ It define how to direct physical channels to logycal
+ (For posibility to exchange channels on stereo output)
+
+**Additional song info.
+ It has been added because standard .STM format don't have any possibilities
+ to store in a ordinary .STM some parameters. It means paragraph in file
+ (i.e. to get real offset, multiply it by 16) where additional info are stored.
+ Format of additional info:
+ ÚÄÄÄÄÂÄÄÄÄÄÄÄÄÂ ... ÄÄÄÄÄÄÂÄÄÄ¿
+ ³Type³  Data  ³      Data ³ 0 ³
+ ÀÄÄÄÄÁÄÄÄÄÄÄÄÄÁ ... ÄÄÄÄÄÄÁÄÄÄÙ
+ Before each block of data is stored data type. While only three types are
+ used:
+ ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+ ³Value³                       Meaning                                      ³
+ ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+ ³  0  ³ No more data stored.                                               ³
+ ³  1  ³ 'Composed by' string (followed by a Pascal-type string[20])        ³
+ ³  2  ³ 'Arranged by' string (followed by a Pascal-type string[20])        ³
+ ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+     b) Samples description.
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Offset³Length³                         Description                          ³
+ÃÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³   0  ³  12  ³ ASCIZ sample name (up to 12 bytes).                          ³
+³  12  ³   1  ³ Unused                                                       ³
+³  13  ³   1  ³ Instrumental disk number (SW here put always 0)              ³
+³  14  ³   2  ³ Unused                                                       ³
+³  16  ³   2  ³ Sample size                                                  ³
+³  18  ³   2  ³ Loop start                                                   ³
+³  20  ³   2  ³ Loop end (65535=no loop)                                     ³
+³  22  ³   1  ³ Default volume                                               ³
+³  23  ³   1  ³ Unused                                                       ³
+³  24  ³   2  ³ Speed for middle C (default 8448 decimal)                    ³
+³  26  ³   4  ³ Unused                                                       ³
+³  30  ³   2  ³ Sample offset in the file divided by 16                      ³
+ÃÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ Total size of block : 32 bytes.                                            ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+     c) Patterns order
+     ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+     Order are stored as-is (128 bytes), and after last pattern number
+all numbers are 99 decimal.
+
+     d) Patterns.
+     ÄÄÄÄÄÄÄÄÄÄÄÄ
+     Patterns format:
+
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ 4bytes ³ 4bytes ³ 4bytes ³ 4bytes ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Ä¿
+³ Voice1 ³ Voice2 ³ Voice3 ³ Voice4 ³  ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´  ³  64 columns
+³ Voice1 ³ Voice2 ³ Voice3 ³ Voice4 ³  ÃÄ of notes (64*4*4=1K)
+  . . . . . . . . . . . . . . . . .    ³
+³ Voice1 ³ Voice2 ³ Voice3 ³ Voice4 ³  ³
+ÀÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ ÄÙ
+
+ Each 4 bytes have folowing structure:
+
+        +0                +1                +2                +3
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ 7 6 5 4 3 2 1 0 ³ 7 6 5 4 3 2 1 0 ³ 7 6 5 4 3 2 1 0 ³ 7 6 5 4 3 2 1 0 ³
+ÀÄÂÄÄÄÄÄÂÄÂÄÄÄÄÄÂÄÁÄÂÄÄÄÄÄÄÄÂÄÂÄÄÄÄÄÁÄÄÄÄÄÄÄÂÄÂÄÄÄÄÄÂÄÁÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÙ
+  ÀÄÄÂÄÄÙ ÀÄÄÂÄÄÙ   ÀÄÄÄÂÄÄÄÙ ÀÄÄÄÄÄÄÂÄÄÄÄÄÄÙ ÀÄÄÂÄÄÙ   ÀÄÄÄÄÄÄÂÄÄÄÄÄÄÙ
+   Octave   Note    SampleNo   Volume(0-65)   Command     Command info
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ Effect/Name          ³ Parameter                                         ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ A - Set tempo        ³ New tempo (max FF)                                ³
+³ B - Jump to pattern  ³ Position in order to jump to                      ³
+³ C - Break pattern    ³                                                   ³
+³ D - Volume Slide     ³ Up speed (high nibble) OR Down speed (low nibble) ³
+³ E - Slide down       ³ Frequence sliding speed                           ³
+³ F - Slide up         ³ Sliding speed                                     ³
+³ G - Tone portamento  ³ Sliding speed                                     ³
+³ H - Vibrato          ³ High nibble (speed) and low nibble (depth)        ³
+³ I - Tremor           ³ High nibble (OnTime) and low nibble (OffTime)     ³
+³ J - Arpeggio         ³ +halfsteps (high nibble) +halfsteps (low nibble)  ³
+³ L - Set stereobase   ³ High nibble (scale for left) low nibble(right)    ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
